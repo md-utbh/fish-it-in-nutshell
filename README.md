@@ -1,96 +1,87 @@
-# 🎣 Fish It Simulator - Python Backend Prototype
+# 🎣 Fish It Simulator (RNG & Physics Prototype)
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![Streamlit](https://img.shields.io/badge/Framework-Streamlit-red)
 ![Status](https://img.shields.io/badge/Status-Prototype-green)
-![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-**Fish It Simulator** adalah prototipe backend logic untuk game memancing berbasis RNG (Random Number Generation), terinspirasi oleh mekanisme game populer di Roblox (*Fish It* / *Fisch*).
+Sebuah simulasi backend logic untuk game memancing bergaya Roblox (seperti *Fish It* atau *Fisch*). Projek ini dibuat untuk mendemonstrasikan bagaimana **Sistem RNG yang seimbang**, **Skala Keberuntungan (Luck Scaling)**, dan **Fisika Tali Pancing** bekerja dalam pengembangan game.
 
-Proyek ini dibuat untuk mensimulasikan dan memecahkan masalah umum dalam desain game ekonomi, seperti inflasi "Luck", eksploitasi kecepatan (speed hack), dan keseimbangan probabilitas item langka.
+## 🚀 Live Demo
+Anda dapat mencoba simulasi ini langsung melalui browser tanpa perlu menginstall apapun:
 
----
-
-## 🌟 Fitur Utama
-
-### 1. 🧮 Logarithmic Luck Scaling
-Berbeda dengan sistem RNG linear yang sering "rusak" saat angka Luck menjadi terlalu tinggi, simulator ini menggunakan skala logaritmik.
-*   **Masalah:** Pada sistem linear, Luck 10.000% akan membuat item langka menjadi item sampah (terlalu mudah didapat).
-*   **Solusi:** Menggunakan rumus $Multiplier = 1.0 + \log_{10}(1 + TotalLuck) \times Factor$.
-*   **Hasil:** Game tetap menantang bagi pemain level tinggi, namun tetap memberikan *reward* yang terasa adil.
-
-### 2. ⚖️ Weighted Pool System
-Menggunakan sistem **Dynamic Weighted Probability**.
-*   Probabilitas item *Common* tidak dikurangi secara manual.
-*   Sebaliknya, bobot (weight) item langka dikalikan dengan *Luck Multiplier*.
-*   Secara otomatis, persentase relatif item *Common* akan mengecil seiring meningkatnya Luck pemain, tanpa pernah mencapai angka 0 (selalu ada kemungkinan gagal).
-
-### 3. 🛡️ Anti-Cheat AFK Logic
-Mencegah eksploitasi "Speed Hack" pada mode Auto-Farm (AFK).
-*   Validasi waktu tunggu (`cast_time`) dilakukan di sisi backend (server-side logic) menggunakan `time.sleep()` yang terikat pada stats Rod.
-*   Memastikan 1 menit AFK benar-benar berjalan selama 60 detik waktu nyata, bukan dipercepat oleh manipulasi klien.
-
-### 4. 🎣 Physics-Based Catching
-Mekanisme penangkapan ikan yang realistis:
-*   **Mutasi Fisik:** Mutasi (seperti *Huge* atau *Titanic*) meningkatkan berat ikan secara drastis.
-*   **Line Snap Probability:** Berat ikan dikomparasi dengan kekuatan tali (Rod Line Strength).
-    *   Rumus: `Chance = max(0, (FishWeight - LineStrength) * 3)`
-    *   Artinya: Jika ikan lebih berat 10kg dari batas, ada peluang 30% tali putus.
+👉 **[Klik di sini untuk menjalankan Fish It Simulator](https://fish-it-in-nutshell-nzuu9zvd5hgjnwrszo499t.streamlit.app/#fish-it-simulator-prototype)**
 
 ---
 
-## 🛠️ Instalasi & Cara Menjalankan
+## 🧠 Fitur Utama & Logika Game
 
-### Cara 1: Menjalankan via Terminal (CLI)
-Pastikan Anda sudah menginstal Python di komputer Anda.
+Projek ini bukan sekadar `random.choice` biasa. Kode ini menggunakan pendekatan matematika untuk menjaga ekonomi game tetap stabil.
 
-1.  **Clone Repository:**
+### 1. Logarithmic Luck Scaling 📉
+Dalam banyak game buruk, Luck 1000% berarti peluang naik 10x lipat secara linear, yang merusak game di level tinggi. Di sini, saya menggunakan **Diminishing Returns**:
+$$ Multiplier = 1.0 + \log_{10}(1 + TotalLuck) \times 0.95 $$
+*   **Luck 100:** Multiplier ~2.9x
+*   **Luck 10.000:** Multiplier ~4.8x
+*   *Hasil:* Pemain dengan gear level tinggi tetap mendapatkan keuntungan, tapi tidak "merusak" kelangkaan item (Game Balancing).
+
+### 2. Weighted Probability Pool 🎲
+Menggunakan sistem bobot dinamis. Ketika Luck meningkat, bobot item langka (Rare/Secret) diperbesar, sementara bobot Common tetap. Ini secara otomatis mengubah persentase drop rate tanpa perlu hardcode if-else yang rumit.
+
+### 3. Physics-based Line Snapping ⚓
+Mendapatkan ikan langka bukan jaminan menang!
+*   Setiap ikan memiliki variasi berat.
+*   Setiap Rod memiliki batas kekuatan (`line_strength`).
+*   Jika berat ikan > kekuatan tali, ada probabilitas tali putus berdasarkan seberapa jauh selisih beratnya.
+
+### 4. Anti-Cheat AFK System ⏱️
+Simulasi AFK (Auto Farm) yang berjalan di server-side logic mematuhi waktu casting yang sebenarnya (`time.sleep`). Ini mencegah eksploitasi di mana pemain bisa menangkap ribuan ikan dalam satu detik.
+
+---
+
+## 📊 Database Ikan (Sample)
+
+| Tier | Peluang Dasar | Estimasi Berat (Kg) |
+| :--- | :--- | :--- |
+| **Common** | 70% | 1 - 4 |
+| **Uncommon** | 20% | 2 - 7 |
+| **Rare** | 8% | 4 - 12 |
+| **Epic** | 1.6% | 6 - 18 |
+| **Legendary** | 0.8% | 10 - 30 |
+| **Mythic** | 0.4% | 20 - 50 |
+| **Secret** | 0.2% | 35 - 90 |
+
+*Terdapat juga sistem Mutasi (Shiny, Big, Titanic) yang memberikan multiplier pada berat ikan.*
+
+---
+
+## 🛠️ Instalasi Lokal
+
+Jika Anda ingin menjalankan kode ini di komputer Anda sendiri:
+
+1.  **Clone Repository**
     ```bash
-    git clone https://github.com/username-anda/fish-it-simulator.git
-    cd fish-it-simulator
+    git clone https://github.com/md-utbh/fish-it-in-nutshell.git
+    cd fish-it-in-nutshell
     ```
 
-2.  **Jalankan Program:**
-    ```bash
-    python main.py
-    ```
-
-### Cara 2: Menjalankan via Web (Streamlit)
-Jika Anda ingin tampilan visual interaktif tanpa coding.
-
-1.  **Install Library:**
+2.  **Install Requirements**
     ```bash
     pip install streamlit
     ```
 
-2.  **Jalankan Aplikasi:**
+3.  **Jalankan Aplikasi**
     ```bash
     streamlit run app.py
     ```
 
 ---
 
-## 🧬 Struktur Kode
-
-Logika program terbagi menjadi beberapa modul fungsi untuk memudahkan pengembangan:
-
-*   `scaled_luck(rod, bait)`: Menghitung multiplier keberuntungan dengan aman.
-*   `roll_rarity(multiplier)`: Algoritma inti penentuan kelangkaan ikan.
-*   `check_line_snap(weight, limit)`: Logika fisika penentu keberhasilan menarik ikan.
-*   `afk_true(seconds)`: Loop simulasi otomatis yang aman dari manipulasi waktu.
+## 📝 Catatan Pengembang
+Projek ini dibuat sebagai portofolio untuk menunjukkan pemahaman dalam:
+*   Python Programming (Logic & Algoritma).
+*   Game Development Concepts (RNG, Balancing, Economy).
+*   Web Deployment (Streamlit Cloud).
 
 ---
 
-## 📊 Contoh Output Statistik
-
-Berikut adalah contoh hasil simulasi AFK selama 1 menit menggunakan **Element Rod** (+1111 Luck) & **Singularity Bait**:
-
-```text
-=== HASIL AFK 1 MENIT ===
-Total Casts: 28
--------------------------
-Common:    3  (10.7%)
-Uncommon:  20 (71.4%)
-Rare:      4  (14.2%)
-Epic:      1  (3.5%)
--------------------------
-Catatan: Luck tinggi berhasil menekan drastis jumlah ikan Common.
+*Dibuat dengan ❤️ dan ☕ menggunakan Python.*
