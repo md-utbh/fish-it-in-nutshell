@@ -4,7 +4,7 @@ import math
 import time
 
 # --- SETUP HALAMAN WEB ---
-st.set_page_config(page_title="Fish It Simulator", page_icon="🎣")
+st.set_page_config(page_title="Fish It In Nutshell", page_icon="🎣")
 
 # --- GAME LOGIC ---
 L_FACTOR = 0.95
@@ -78,8 +78,8 @@ def fish_once(rod, bait):
     }
 
 # --- UI INTERFACE STREAMLIT ---
-st.title("🎣 Fish It Simulator (Prototype)")
-st.write("Simulasi RNG dengan Logarithmic Luck Scaling & Physics Weight.")
+st.title("🎣 Fish It In Nutshell")
+st.write('Or just call it "Simulasi RNG dengan Logarithmic Luck Scaling & Physics Weight."')
 
 # Sidebar untuk Setting
 st.sidebar.header("⚙️ Equipment Setup")
